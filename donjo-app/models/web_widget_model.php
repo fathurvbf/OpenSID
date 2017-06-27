@@ -9,11 +9,157 @@
 
 	function get_widget(){
 
-		$sql   = "SELECT * FROM widget limit 1";
-		$query = $this->db->query($sql);
-		$data=$query->row_array();
-
+		$data = $this->db->where('enabled',1)->get('widget')->result_array();
 		return $data;
+	}
+
+	function autocomplete(){
+		$sql   = "SELECT judul FROM widget";
+		$query = $this->db->query($sql);
+		$data  = $query->result_array();
+
+		$i=0;
+		$outp='';
+		while($i<count($data)){
+			$outp .= ",'" .$data[$i]['judul']. "'";
+			$i++;
+		}
+		$outp = strtolower(substr($outp, 1));
+		$outp = '[' .$outp. ']';
+		return $outp;
+	}
+
+	function search_sql(){
+		if(isset($_SESSION['cari'])){
+		$cari = $_SESSION['cari'];
+			$kw = $this->db->escape_like_str($cari);
+			$kw = '%' .$kw. '%';
+			$search_sql= " AND (judul LIKE '$kw' OR isi LIKE '$kw')";
+			return $search_sql;
+			}
+		}
+
+	function filter_sql(){
+		if(isset($_SESSION['filter'])){
+			$kf = $_SESSION['filter'];
+			$filter_sql= " AND enabled = $kf";
+		return $filter_sql;
+		}
+	}
+
+	function paging($p=1,$o=0){
+
+		$sql      = "SELECT COUNT(id) FROM widget WHERE 1";
+		$sql     .= $this->search_sql();
+		$sql 		 .= $this->filter_sql();
+		$query    = $this->db->query($sql);
+		$row      = $query->row_array();
+		$jml_data = $row['id'];
+
+		$this->load->library('paging');
+		$cfg['page']     = $p;
+		$cfg['per_page'] = $_SESSION['per_page'];
+		$cfg['num_rows'] = $jml_data;
+		$this->paging->init($cfg);
+
+		return $this->paging;
+	}
+
+	function list_data($o=0,$offset=0,$limit=500){
+
+		$order_sql = ' ORDER BY urut';
+		$paging_sql = ' LIMIT ' .$offset. ',' .$limit;
+
+		$sql   = "SELECT * FROM widget WHERE 1";
+
+		$sql .= $this->search_sql();
+		$sql .= $this->filter_sql();
+		$sql .= $order_sql;
+		$sql .= $paging_sql;
+
+		$query = $this->db->query($sql);
+		$data=$query->result_array();
+
+		$i=0;
+		$j=$offset;
+		while($i<count($data)){
+			$data[$i]['no']=$j+1;
+
+			if($data[$i]['enabled']==1)
+				$data[$i]['aktif']="Ya";
+			else
+				$data[$i]['aktif']="Tidak";
+
+			$i++;
+			$j++;
+		}
+		return $data;
+	}
+
+  function urut_max(){
+      $this->db->select_max('urut');
+      $query = $this->db->get('widget');
+      $widget = $query->row_array();
+      return $widget['urut'];
+  }
+
+	function urut_semua(){
+		$sql = "SELECT urut, COUNT(*) c FROM widget GROUP BY urut HAVING c > 1";
+		$query = $this->db->query($sql);
+		$urut_duplikat = $query->result_array();
+		if ($urut_duplikat) {
+			$this->db->select("id");
+			$this->db->order_by("urut");
+			$q = $this->db->get('widget');
+			$widgets = $q->result_array();
+			for ($i=0; $i<count($widgets); $i++){
+				$this->db->where('id', $widgets[$i]['id']);
+				$data['urut'] = $i + 1;
+				$this->db->update('widget', $data);
+			}
+		}
+	}
+
+	// $arah:
+	//		1 - turun
+	// 		2 - naik
+	function urut($id, $arah){
+		$this->urut_semua();
+		$this->db->where('id', $id);
+		$q = $this->db->get('widget');
+		$widget1 = $q->row_array();
+
+		$this->db->select("id, urut");
+		$this->db->order_by("urut");
+		$q = $this->db->get('widget');
+		$widgets = $q->result_array();
+		for ($i=0; $i<count($widgets); $i++){
+			if ($widgets[$i]['id'] == $id) {
+				break;
+			}
+		}
+
+		if ($arah == 1) {
+			if ($i >= count($widgets) - 1) return;
+			$widget2 = $widgets[$i+1];
+		}
+		if ($arah == 2) {
+			if ($i <= 0) return;
+			$widget2 = $widgets[$i-1];
+		}
+
+		// Tukar urutan
+		$this->db->where('id', $widget2['id']);
+		$data = array('urut' => $widget1['urut']);
+		$this->db->update('widget', $data);
+		$this->db->where('id', $widget1['id']);
+		$data = array('urut' => $widget2['urut']);
+		$this->db->update('widget', $data);
+	}
+
+	function lock($id='',$val=0){
+		$sql  = "UPDATE widget SET enabled=? WHERE id=?";
+		$this->db->query($sql, array($val,$id));
 	}
 
 	function update($id=0){

@@ -1,5 +1,5 @@
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed');
-class web extends CI_Controller{
+class web_widget extends CI_Controller{
 
 	function __construct(){
 		parent::__construct();
@@ -16,8 +16,7 @@ class web extends CI_Controller{
 		$grup	= $this->user_model->sesi_grup($_SESSION['sesi']);
 		if($grup!=1 AND $grup!=2 AND $grup!=3 AND $grup!=4) redirect('siteman');
 		$this->load->model('header_model');
-		$this->load->model('web_artikel_model');
-		$this->load->model('web_kategori_model');
+		$this->load->model('web_widget_model');
 		$this->modul_ini = 13;
 	}
 
@@ -27,18 +26,15 @@ class web extends CI_Controller{
 		redirect('web');
 	}
 
-	function pager($cat=1){
+	function pager(){
 		if(isset($_POST['per_page']))
 			$_SESSION['per_page']=$_POST['per_page'];
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat");
+		redirect("web_widget");
 	}
 
-	function index($cat=1,$p=1,$o=0){
-
-		$data['p']        = $p;
-		$data['o']        = $o;
-		$data['cat']	  = $cat;
+	function index($p=1,$o=0){
+		$data['p']      = $p;
+		$data['o']      = $o;
 
 		if(isset($_SESSION['cari']))
 			$data['cari'] = $_SESSION['cari'];
@@ -52,19 +48,16 @@ class web extends CI_Controller{
 			$_SESSION['per_page']=$_POST['per_page'];
 		$data['per_page'] = $_SESSION['per_page'];
 
-		$data['paging']  = $this->web_artikel_model->paging($cat,$p,$o);
-		$data['main']    = $this->web_artikel_model->list_data($cat,$o, $data['paging']->offset, $data['paging']->per_page);
-		$data['keyword'] = $this->web_artikel_model->autocomplete();
-		$data['list_kategori'] = $this->web_artikel_model->list_kategori();
-		$data['kategori'] = $this->web_artikel_model->get_kategori($cat);
-		$data['cat'] = $cat;
+		$data['paging']  = $this->web_widget_model->paging($p,$o);
+		$data['main']    = $this->web_widget_model->list_data($o, $data['paging']->offset, $data['paging']->per_page);
+		$data['keyword'] = $this->web_widget_model->autocomplete();
 
 		$header = $this->header_model->get_data();
-		$nav['act']=0;
+		$nav['act']=7;
 
 		$this->load->view('header', $header);
 		$this->load->view('web/nav',$nav);
-		$this->load->view('web/artikel/table',$data);
+		$this->load->view('web/artikel/widget',$data);
 		$this->load->view('footer');
 	}
 
@@ -101,22 +94,20 @@ class web extends CI_Controller{
 		$this->load->view('footer');
 	}
 
-	function search($cat=1){
+	function search(){
 		$cari = $this->input->post('cari');
 		if($cari!='')
 			$_SESSION['cari']=$cari;
 		else unset($_SESSION['cari']);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat");
+		redirect("web_widget");
 	}
 
-	function filter($cat=1){
+	function filter(){
 		$filter = $this->input->post('filter');
 		if($filter!=0)
 			$_SESSION['filter']=$filter;
 		else unset($_SESSION['filter']);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat");
+		redirect("web_widget");
 	}
 
 	function insert($cat=1){
@@ -149,49 +140,19 @@ class web extends CI_Controller{
 		else redirect("web/index/$p/$o");
 	}
 
-	function ubah_kategori_form($id=0){
-		$data['list_kategori'] = $this->web_kategori_model->list_kategori("kategori");
-		$data['form_action'] = site_url("web/update_kategori/$id");
-		$data['kategori_sekarang'] = $this->web_artikel_model->get_kategori_artikel($id);
-		$this->load->view('web/artikel/ajax_ubah_kategori_form',$data);
+	function urut($id=0, $arah=0){
+		$this->web_widget_model->urut($id,$arah);
+		redirect("web_widget");
 	}
 
-	function update_kategori($id=0){
-		$cat = $_POST['kategori'];
-		$this->web_artikel_model->update_kategori($id, $cat);
-		redirect("web/index/$cat");
+	function lock($id=0){
+		$this->web_widget_model->lock($id,1);
+		redirect("web_widget");
 	}
 
-	function artikel_lock($cat=1,$id=0){
-		$this->web_artikel_model->artikel_lock($id,1);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat");
+	function unlock($id=0){
+		$this->web_widget_model->lock($id,2);
+		redirect("web_widget");
 	}
 
-	function artikel_unlock($cat=1,$id=0){
-		$this->web_artikel_model->artikel_lock($id,2);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat");
-	}
-
-	function ajax_add_kategori($cat=1,$p=1,$o=0){
-
-		$data['form_action'] = site_url("web/insert_kategori/$cat/$p/$o");
-		$this->load->view('web/artikel/ajax_add_kategori_form',$data);
-	}
-
-	function insert_kategori($cat=1,$p=1,$o=0){
-		$this->web_artikel_model->insert_kategori();
-		redirect("web/index/$cat/$p/$o");
-	}
-
-	function headline($cat=1,$p=1,$o=0,$id=0){
-		$this->web_artikel_model->headline($id);
-		redirect("web/index/$cat/$p/$o");
-	}
-
-	function slide($cat=1,$p=1,$o=0,$id=0){
-		$this->web_artikel_model->slide($id);
-		redirect("web/index/$cat/$p/$o");
-	}
 }
