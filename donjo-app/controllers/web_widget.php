@@ -61,36 +61,27 @@ class web_widget extends CI_Controller{
 		$this->load->view('footer');
 	}
 
-	function form($cat=1,$p=1,$o=0,$id=''){
+	function form($p=1,$o=0,$id=''){
 
 		$data['p'] = $p;
 		$data['o'] = $o;
-		$data['cat'] = $cat;
 
 		if($id){
-			$data['artikel']        = $this->web_artikel_model->get_artikel($id);
-			$data['form_action'] = site_url("web/update/$cat/$id/$p/$o");
+			$data['widget']        = $this->web_widget_model->get_widget($id);
+			$data['form_action'] = site_url("web_widget/update/$id/$p/$o");
 		}
 		else{
-			$data['artikel']        = null;
-			$data['form_action'] = site_url("web/insert/$cat");
+			$data['widget']        = null;
+			$data['form_action'] = site_url("web_widget/insert");
 		}
 
-		$data['kategori'] = $this->web_artikel_model->get_kategori($cat);
-
 		$header = $this->header_model->get_data();
-
-		if($cat == 1003) $nav['act'] = 7;
-		else $nav['act'] = 0;
+		$nav['act'] = 7;
 
 		$this->load->view('header', $header);
 		//$this->load->view('web/spacer');
 		$this->load->view('web/nav',$nav);
-		if($cat != 1003)
-			$this->load->view('web/artikel/form',$data);
-		else
-			$this->load->view('web/artikel/widget-form',$data);
-
+		$this->load->view('web/artikel/widget-form',$data);
 		$this->load->view('footer');
 	}
 
@@ -110,16 +101,14 @@ class web_widget extends CI_Controller{
 		redirect("web_widget");
 	}
 
-	function insert($cat=1){
-		$this->web_artikel_model->insert($cat);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat");
+	function insert(){
+		$this->web_widget_model->insert();
+		redirect("web_widget");
 	}
 
-	function update($cat=0,$id='',$p=1,$o=0){
-		$this->web_artikel_model->update($cat, $id);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat/$p/$o");
+	function update($id='',$p=1,$o=0){
+		$this->web_widget_model->update($id);
+		redirect("web_widget");
 	}
 
 	function delete($cat=1,$p=1,$o=0,$id=''){

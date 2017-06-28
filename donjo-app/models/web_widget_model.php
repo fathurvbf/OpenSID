@@ -7,7 +7,12 @@
 		$this->load->model('pamong_model');
 	}
 
-	function get_widget(){
+	function get_widget($id=''){
+		$data = $this->db->where('id',$id)->get('widget')->row_array();
+		return $data;
+	}
+
+	function get_widget_aktif(){
 
 		$data = $this->db->where('enabled',1)->get('widget')->result_array();
 		return $data;
@@ -87,8 +92,17 @@
 
 			if($data[$i]['enabled']==1)
 				$data[$i]['aktif']="Ya";
-			else
+			else {
 				$data[$i]['aktif']="Tidak";
+				$data[$i]['enabled']=2;
+			}
+			$teks = htmlentities($data[$i]['isi'])	;
+			if(strlen($teks)>150){
+				$abstrak = substr($teks,0,150)."...";
+			}else{
+				$abstrak = $teks;
+			}
+			$data[$i]['isi'] = $abstrak;
 
 			$i++;
 			$j++;
@@ -162,23 +176,47 @@
 		$this->db->query($sql, array($val,$id));
 	}
 
-	function update($id=0){
+	function insert(){
+		$_SESSION['success']=1;
+		$_SESSION['error_msg'] = "";
 
 		$data = $_POST;
+		$data['enabled'] = 2;
 
-		$sql="SELECT * FROM widget WHERE 1 ";
-		$query = $this->db->query($sql);
-		$hasil=$query->result_array();
-
-		if($hasil){
-			$this->db->where('id',$id);
-			$outp = $this->db->update('widget',$data);
-		}else{
-			$outp = $this->db->insert('widget',$data);
+		// Widget diberi urutan terakhir
+		$data['urut'] = $this->urut_max() + 1;
+		if ($data['jenis_widget']==2){
+			$data['isi'] = $data['isi-statis'];
 		}
+		elseif ($data['jenis_widget']==3){
+			$data['isi'] = $data['isi-dinamis'];
+		}
+		unset($data['isi-dinamis']);
+		unset($data['isi-statis']);
 
-		if($outp) $_SESSION['success']=1;
-			else $_SESSION['success']=-1;
+		$outp = $this->db->insert('widget',$data);
+		if(!$outp) $_SESSION['success']=-1;
+	}
+
+	function update($id=0){
+		$_SESSION['success']=1;
+		$_SESSION['error_msg'] = "";
+
+	  $data = $_POST;
+
+		// Widget isinya tergantung jenis widget
+		if ($data['jenis_widget']==2){
+			$data['isi'] = $data['isi-statis'];
+		}
+		elseif ($data['jenis_widget']==3){
+			$data['isi'] = $data['isi-dinamis'];
+		}
+		unset($data['isi-dinamis']);
+		unset($data['isi-statis']);
+
+		$this->db->where('id',$id);
+		$outp = $this->db->update('widget',$data);
+		if(!$outp) $_SESSION['success']=-1;
 	}
 
 	// pengambilan data yang akan ditampilkan di widget

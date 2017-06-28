@@ -23,7 +23,7 @@ source: keyword
 <div class="ui-layout-north panel">
 <div class="left">
 <div class="uibutton-group">
-<a href="<?php echo site_url("web/form/$cat")?>" class="uibutton tipsy south" title="Tambah Data" ><span class="fa fa-plus-square">&nbsp;</span>Tambah Widget Baru</a>
+<a href="<?php echo site_url("web_widget/form")?>" class="uibutton tipsy south" title="Tambah Data" ><span class="fa fa-plus-square">&nbsp;</span>Tambah Widget Baru</a>
 <?php if($_SESSION['grup']<4){?>
 <button type="button" title="Hapus Widget" onclick="deleteAllBox('mainform','<?php echo site_url("web/delete_all/$cat/$p/$o")?>')" class="uibutton tipsy south"><span class="fa fa-trash">&nbsp;</span>Hapus
 <?php }?>
@@ -53,7 +53,8 @@ source: keyword
       <th width="160">Aksi</th>
       <th align="left">Judul</th>
       <th align="left">Jenis Widget</th>
-      <th align="center">Aktif/Non-aktif</th>
+      <th align="center">Aktif?</th>
+      <th align="left">Isi</th>
     </tr>
   </thead>
   <tbody>
@@ -68,7 +69,7 @@ source: keyword
             <a href="<?php echo site_url("web_widget/urut/$data[id]/1")?>" class="uibutton tipsy south" title="Turun"><span class="fa fa-arrow-down"></span></a>
             <a href="<?php echo site_url("web_widget/urut/$data[id]/2")?>" class="uibutton tipsy south" title="Naik"><span class="fa fa-arrow-up"></span></a>
             <?php if($data['jenis_widget']!=1):?>
-              <a href="<?php echo site_url("web/form/$cat/$p/$o/$data[id]")?>" class="uibutton tipsy south fa-tipis" title="Ubah Data"><span class="fa fa-edit"></span> Ubah</a>
+              <a href="<?php echo site_url("web_widget/form/$p/$o/$data[id]")?>" class="uibutton tipsy south fa-tipis" title="Ubah Data"><span class="fa fa-edit"></span> Ubah</a>
             <?php  endif?>
             <?php if($_SESSION['grup']<4){?>
               <?php if($data['jenis_widget']!=1):?>
@@ -93,6 +94,7 @@ source: keyword
             Dinamis
           <?php endif ?>
         <td width="100" align="center"><?php echo $data['aktif']?></td>
+        <td><?php echo $data['isi']?></td>
       </tr>
     <?php }?>
   </tbody>
