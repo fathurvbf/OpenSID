@@ -67,18 +67,14 @@
 
 	function list_data($cat=0,$o=0,$offset=0,$limit=500){
 
-		if ($cat == 1003) {
-			$order_sql = ' ORDER BY urut';
-		} else {
-			switch($o){
-			case 1: $order_sql = ' ORDER BY judul'; break;
-			case 2: $order_sql = ' ORDER BY judul DESC'; break;
-			case 3: $order_sql = ' ORDER BY enabled'; break;
-			case 4: $order_sql = ' ORDER BY enabled DESC'; break;
-			case 5: $order_sql = ' ORDER BY tgl_upload'; break;
-			case 6: $order_sql = ' ORDER BY tgl_upload DESC'; break;
-			default:$order_sql = ' ORDER BY id DESC';
-			}
+		switch($o){
+		case 1: $order_sql = ' ORDER BY judul'; break;
+		case 2: $order_sql = ' ORDER BY judul DESC'; break;
+		case 3: $order_sql = ' ORDER BY enabled'; break;
+		case 4: $order_sql = ' ORDER BY enabled DESC'; break;
+		case 5: $order_sql = ' ORDER BY tgl_upload'; break;
+		case 6: $order_sql = ' ORDER BY tgl_upload DESC'; break;
+		default:$order_sql = ' ORDER BY id DESC';
 		}
 
 		$paging_sql = ' LIMIT ' .$offset. ',' .$limit;
@@ -199,19 +195,6 @@
 			}
 		}
 
-		// Widget diberi urutan terakhir
-		if ($cat == 1003) {
-			$data['urut'] = $this->widget_urut_max() + 1;
-			if ($data['jenis_widget']==2){
-				$data['isi'] = $data['isi-statis'];
-			}
-			elseif ($data['jenis_widget']==3){
-				$data['isi'] = $data['isi-dinamis'];
-			}
-			unset($data['isi-dinamis']);
-			unset($data['isi-statis']);
-		}
-
 		$outp = $this->db->insert('artikel',$data);
 		if(!$outp) $_SESSION['success']=-1;
 	}
@@ -309,18 +292,6 @@
 			unset($data['gambar3_hapus']);
 		}
 
-		// Widget isinya tergantung jenis widget
-		if ($cat == 1003) {
-			if ($data['jenis_widget']==2){
-				$data['isi'] = $data['isi-statis'];
-			}
-			elseif ($data['jenis_widget']==3){
-				$data['isi'] = $data['isi-dinamis'];
-			}
-			unset($data['isi-dinamis']);
-			unset($data['isi-statis']);
-		}
-
 		$this->db->where('id',$id);
 		$outp = $this->db->update('artikel',$data);
 		if(!$outp) $_SESSION['success']=-1;
@@ -331,7 +302,7 @@
 	}
 
 	function delete($id=''){
-		$sql  = "DELETE FROM artikel WHERE id=? AND jenis_widget <> 1";
+		$sql  = "DELETE FROM artikel WHERE id=?";
 		$outp = $this->db->query($sql,array($id));
 
 		if($outp) $_SESSION['success']=1;
@@ -351,7 +322,7 @@
 
 		if(count($id_cb)){
 			foreach($id_cb as $id){
-				$sql  = "DELETE FROM artikel WHERE id=? AND jenis_widget <> 1";
+				$sql  = "DELETE FROM artikel WHERE id=?";
 				$outp = $this->db->query($sql,array($id));
 			}
 		}
