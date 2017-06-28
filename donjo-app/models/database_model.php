@@ -83,7 +83,7 @@
           `isi` text,
           `enabled` int(2),
           `judul` varchar(100),
-          `jenis_widget` tinyint(2),
+          `jenis_widget` tinyint(2) NOT NULL DEFAULT 3,
           `urut` int(5),
           PRIMARY KEY  (`id`)
         );
@@ -95,6 +95,11 @@
         $this->db->insert('widget', $widget);
       }
       $this->db->where('id_kategori',1003)->delete('artikel');
+      // Hapus kolom widget dari tabel artikel
+      $kolom_untuk_dihapus = array("urut", "jenis_widget");
+      foreach ($kolom_untuk_dihapus as $kolom){
+        $this->dbforge->drop_column('artikel', $kolom);
+      }
     }
   }
 
