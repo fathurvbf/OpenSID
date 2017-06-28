@@ -111,22 +111,14 @@ class web_widget extends CI_Controller{
 		redirect("web_widget");
 	}
 
-	function delete($cat=1,$p=1,$o=0,$id=''){
-		$this->web_artikel_model->delete($id);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$cat/$p/$o");
+	function delete($p=1,$o=0,$id=''){
+		$this->web_widget_model->delete($id);
+		redirect("web_widget");
 	}
 
-	function hapus($cat=1,$p=1,$o=0){
-		$this->web_artikel_model->hapus($cat);
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/1/$p/$o");
-	}
-
-	function delete_all($cat=1,$p=1,$o=0){
-		$this->web_artikel_model->delete_all();
-		if ($cat == 1003) redirect("web/widget");
-		else redirect("web/index/$p/$o");
+	function delete_all($p=1,$o=0){
+		$this->web_widget_model->delete_all();
+		redirect("web_widget");
 	}
 
 	function urut($id=0, $arah=0){

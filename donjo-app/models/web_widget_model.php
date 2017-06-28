@@ -219,6 +219,29 @@
 		if(!$outp) $_SESSION['success']=-1;
 	}
 
+	function delete($id=''){
+		$sql  = "DELETE FROM widget WHERE id=? AND jenis_widget <> 1";
+		$outp = $this->db->query($sql,array($id));
+
+		if($outp) $_SESSION['success']=1;
+			else $_SESSION['success']=-1;
+	}
+
+	function delete_all(){
+		$id_cb = $_POST['id_cb'];
+
+		if(count($id_cb)){
+			foreach($id_cb as $id){
+				$sql  = "DELETE FROM widget WHERE id=? AND jenis_widget <> 1";
+				$outp = $this->db->query($sql,array($id));
+			}
+		}
+		else $outp = false;
+
+		if($outp) $_SESSION['success']=1;
+			else $_SESSION['success']=-1;
+	}
+
 	// pengambilan data yang akan ditampilkan di widget
 	function get_widget_data(&$data){
 		$data['w_gal']  = $this->first_gallery_m->gallery_widget();

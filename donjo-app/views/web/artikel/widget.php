@@ -25,7 +25,7 @@ source: keyword
 <div class="uibutton-group">
 <a href="<?php echo site_url("web_widget/form")?>" class="uibutton tipsy south" title="Tambah Data" ><span class="fa fa-plus-square">&nbsp;</span>Tambah Widget Baru</a>
 <?php if($_SESSION['grup']<4){?>
-<button type="button" title="Hapus Widget" onclick="deleteAllBox('mainform','<?php echo site_url("web/delete_all/$cat/$p/$o")?>')" class="uibutton tipsy south"><span class="fa fa-trash">&nbsp;</span>Hapus
+<button type="button" title="Hapus Widget" onclick="deleteAllBox('mainform','<?php echo site_url("web_widget/delete_all/$p/$o")?>')" class="uibutton tipsy south"><span class="fa fa-trash">&nbsp;</span>Hapus
 <?php }?>
 </div>
 </div>
@@ -73,7 +73,7 @@ source: keyword
             <?php  endif?>
             <?php if($_SESSION['grup']<4){?>
               <?php if($data['jenis_widget']!=1):?>
-                <a href="<?php echo site_url("web/delete/$cat/$p/$o/$data[id]")?>" class="uibutton tipsy south" title="Hapus Data" target="confirm" message="Apakah Anda Yakin?" header="Hapus Data"><span class="fa fa-trash"></span></a>
+                <a href="<?php echo site_url("web_widget/delete/$p/$o/$data[id]")?>" class="uibutton tipsy south" title="Hapus Data" target="confirm" message="Apakah Anda Yakin?" header="Hapus Data"><span class="fa fa-trash"></span></a>
               <?php  endif?>
               <?php  if($data['enabled'] == '2'):?>
                 <a href="<?php echo site_url("web_widget/lock/$data[id]")?>" class="uibutton tipsy south" title="Aktivasi widget"><span class="fa fa-lock"></span></a>
